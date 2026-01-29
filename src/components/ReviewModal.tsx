@@ -1,0 +1,264 @@
+// src/components/ReviewModal.tsx
+"use client";
+
+import { useState } from 'react';
+import Image from 'next/image';
+import { getDistanceFromLatLonInMeters } from '@/lib/geo';
+import { uploadReviewPhoto, saveReviewToFirestore } from '@/app/restaurant/[id]/actions'; // Importamos as funções novas
+import { Camera, MapPin, Loader2, Star, CheckCircle } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  GithubAuthProvider,
+  OAuthProvider, // Para Microsoft
+  // O Discord não é um provedor direto, mas pode ser feito com OAuth genérico se necessário
+  User
+} from "firebase/auth";
+
+interface Props {
+  restaurantId: string; // Adicionamos o ID para saber quem estamos avaliando
+  restaurantLat: number;
+  restaurantLng: number;
+}
+
+export default function ReviewModal({ restaurantId, restaurantLat, restaurantLng }: Props) {
+  // Estados de Fluxo
+  const [step, setStep] = useState<'auth' |'gps' | 'photo' | 'form' | 'success'>('auth');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [user, setUser] = useState<User | null>(null);
+
+
+  // Estados do Formulário
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string>('');
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+
+  // 0. Autenticação
+  const handleSignIn = async (providerName: 'google' | 'github' | 'microsoft' | 'apple') => {
+    setLoading(true);
+    setError('');
+    let provider;
+    
+    switch (providerName) {
+      case 'google':
+        provider = new GoogleAuthProvider();
+        break;
+      case 'github':
+        provider = new GithubAuthProvider();
+        break;
+      case 'microsoft':
+        provider = new OAuthProvider('microsoft.com');
+        break;
+      case 'apple':
+        provider = new OAuthProvider('apple.com');
+        break;
+      default:
+        setLoading(false);
+        return;
+    }
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      setStep('gps');
+    } catch (error) {
+      setError("Falha no login. Tente novamente.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // 1. Verificar GPS
+  const checkLocation = () => {
+    setLoading(true);
+    setError('');
+
+    if (!navigator.geolocation) {
+      setError("Navegador sem suporte a GPS.");
+      setLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        try {
+          if (process.env.NODE_ENV === 'development') {
+            console.log("Sua localização:", pos.coords.latitude, pos.coords.longitude);
+          }
+          const dist = getDistanceFromLatLonInMeters(pos.coords.latitude, pos.coords.longitude, restaurantLat, restaurantLng);
+          // Usando 1000m (1km) para facilitar seus testes. Em produção use 200m.
+          if (dist <= 1000) {
+            setStep('photo'); // Passa para a etapa da foto
+          } else {
+            setError(`Você está longe (${Math.round(dist)}m).`);
+          }
+        } catch (err) {
+          setError("Coordenadas inválidas. Tente novamente.");
+          console.error(err);
+        }
+        setLoading(false);
+      },
+      () => {
+        setError("Ative o GPS para continuar.");
+        setLoading(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
+
+  // 2. Usuário selecionou a foto
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0];
+    if (selected) {
+      // Validação: máximo 5MB
+      if (selected.size > 5 * 1024 * 1024) {
+        setError('Imagem muito grande. Máximo 5MB.');
+        return;
+      }
+      // Validação: apenas imagens
+      if (!selected.type.startsWith('image/')) {
+        setError('Selecione uma imagem válida.');
+        return;
+      }
+      setFile(selected);
+      setPreview(URL.createObjectURL(selected)); // Cria preview local
+      setStep('form'); // Passa para o formulário
+    }
+  };
+
+  // 3. Enviar tudo para o Firebase
+  const handleSubmit = async () => {
+    if (!file) return;
+    if (!comment.trim()) {
+      setError('Por favor, escreva um comentário.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+
+    try {
+      // A. Sobe a foto
+      const photoUrl = await uploadReviewPhoto(file);
+      
+      // B. Salva no banco
+      await saveReviewToFirestore({
+        restaurantId,
+        photoUrl,
+        rating,
+        comment,
+        user: user ? { uid: user.uid, displayName: user.displayName, photoURL: user.photoURL } : null
+      });
+
+      // Limpar preview URL para evitar vazamento de memória
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+      
+      setStep('success');
+    } catch (err) {
+      setError("Erro ao enviar. Tente novamente.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- RENDERIZAÇÃO ---
+  
+  if (step === 'success') {
+    return (
+      <div className="p-6 bg-green-50 rounded-xl border border-green-200 text-center mt-6">
+        <CheckCircle className="mx-auto text-green-600 mb-2" size={40} />
+        <h3 className="font-bold text-green-800">Avaliação Enviada!</h3>
+        <p className="text-sm text-green-700">Obrigado por participar.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-5 bg-white rounded-xl shadow-lg border border-gray-100 mt-6">
+      <h3 className="font-bold text-xl mb-1 text-gray-800">Avaliar Prato</h3>
+      
+      {error && <p className="text-red-500 text-sm mb-3 bg-red-50 p-2 rounded">{error}</p>}
+
+      {/* ETAPA 0: AUTH */}
+      {step === 'auth' && (
+        <div className="text-center">
+            <p className="mb-4 text-gray-600">Deseja se identificar para a avaliação?</p>
+            <div className="space-y-3">
+                <button onClick={() => handleSignIn('google')} className="w-full bg-red-500 text-white py-2 rounded-lg">Login com Google</button>
+                <button onClick={() => handleSignIn('microsoft')} className="w-full bg-blue-800 text-white py-2 rounded-lg">Login com Microsoft</button>
+                <button onClick={() => handleSignIn('github')} className="w-full bg-gray-800 text-white py-2 rounded-lg">Login com GitHub</button>
+                <button onClick={() => handleSignIn('apple')} className="w-full bg-black text-white py-2 rounded-lg">Login com Apple</button>
+            </div>
+            <button onClick={() => setStep('gps')} className="mt-4 text-sm text-gray-500 hover:underline">Continuar como anônimo</button>
+        </div>
+      )}
+
+
+      {/* ETAPA 1: GPS */}
+      {step === 'gps' && (
+        <button 
+          onClick={checkLocation}
+          disabled={loading}
+          className="flex items-center gap-2 bg-blue-600 text-white font-medium px-4 py-3 rounded-lg w-full justify-center"
+        >
+          {loading ? <Loader2 className="animate-spin" /> : <MapPin />}
+          Validar Localização
+        </button>
+      )}
+
+      {/* ETAPA 2: FOTO */}
+      {step === 'photo' && (
+        <label className="flex items-center gap-2 bg-orange-500 text-white font-medium px-4 py-3 rounded-lg w-full justify-center cursor-pointer">
+          <Camera /> Tirar Foto
+          <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+        </label>
+      )}
+
+      {/* ETAPA 3: FORMULÁRIO */}
+      {step === 'form' && (
+        <div className="animate-in fade-in">
+          {/* Preview da foto */}
+          <div className="relative w-full h-40 bg-gray-100 rounded-lg mb-4 overflow-hidden">
+            <Image src={preview} alt="Preview" fill className="object-cover" />
+          </div>
+
+          {/* Estrelas */}
+          <div className="flex justify-center gap-2 mb-4">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button key={star} onClick={() => setRating(star)} type="button">
+                <Star 
+                  size={32} 
+                  className={star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} 
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Comentário */}
+          <textarea
+            placeholder="O que achou do prato?"
+            className="w-full border p-3 rounded-lg mb-4 text-sm"
+            rows={3}
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+          />
+
+          <button 
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg"
+          >
+            {loading ? "Enviando..." : "Confirmar Avaliação"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
