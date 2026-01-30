@@ -244,7 +244,7 @@ export default function ReviewModal({ restaurantId, restaurantLat, restaurantLng
           {/* Comentário */}
           <textarea
             placeholder="O que achou do prato?"
-            className="w-full border p-3 rounded-lg mb-4 text-sm"
+            className="w-full border p-3 rounded-lg mb-4 text-sm text-black"
             rows={3}
             value={comment}
             onChange={e => setComment(e.target.value)}

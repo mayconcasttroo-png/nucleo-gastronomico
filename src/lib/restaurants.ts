@@ -20,7 +20,7 @@ export const RESTAURANTS: Restaurant[] = [
       'Filé de salmão grelhado com batata ao murro, pangranato de coco e espuma leve de moqueca.',
     dishImage:
       'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop&crop=faces&sat=-100&exp=15',
-    coords: { lat: -22.52245, lng: -41.92046 },
+    coords: { lat: -22.525005044825953, lng: -41.92196604541569 },
   },
   {
     id: 'bartro',
@@ -31,7 +31,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishDescription: 'Camarões grelhados sobre musseline de batata-doce com molho de maracujá.',
     dishImage:
       'https://images.unsplash.com/photo-1543353071-087092ec393a?q=80&w=1200&auto=format&fit=crop&crop=faces&sat=-100&exp=15',
-    coords: { lat: -22.5273042, lng: -41.9403437 },
+    coords: { lat: -22.526917305763018, lng: -41.94272508959807 },
   },
   {
     id: 'degusta',
@@ -42,7 +42,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishDescription:
       'Camarões ao estilo moqueca com crosta de farinha panko e catupiry.',
     dishImage: 'https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -22.5272771, lng: -41.9455901 },
+    coords: { lat: -22.51847071710228, lng: -41.92148717425248 },
   },
   {
     id: 'delicias-de-casa',
@@ -63,7 +63,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishDescription:
       'Sanduíche com polvo grelhado, aioli de limão siciliano e rúcula no pão artesanal.',
     dishImage: 'https://images.unsplash.com/photo-1550507992-eb63ffee0847?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -12.9795, lng: -38.5000 },
+    coords: { lat: -22.51582263722419, lng: -41.93056381657957 },
   },
   {
     id: 'fornella',
@@ -74,7 +74,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishDescription:
       'Pizza com salmão e molho de maracujá, cream cheese e mussarela.',
     dishImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -12.9710, lng: -38.5020 },
+    coords: { lat: -22.494232227910985, lng: -41.92426667610864 },
   },
   {
     id: 'melanina',
@@ -85,7 +85,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishDescription:
       'Sobremesa de creme caramelo com leite de coco e caramelo de café.',
     dishImage: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -12.9742, lng: -38.4980 },
+    coords: { lat: -22.515611092827733, lng: -41.92601883192523 },
   },
   {
     id: 'rico',
@@ -95,7 +95,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishName: 'Risoto das Ondas de Caymmi',
     dishDescription: 'Risoto criativo com frutos do mar e toque litorâneo.',
     dishImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -12.9725, lng: -38.5005 },
+    coords: { lat: -22.526143574027184, lng: -41.92281483192503 },
   },
   {
     id: 'vila-portuguesa',
@@ -106,7 +106,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishDescription:
       'Gambas à Brás com camarões, batata palha artesanal e ervas frescas.',
     dishImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -12.9700, lng: -38.4960 },
+    coords: { lat: -22.510775083583702, lng: -41.92774151582527 },
   },
   {
     id: 'picanha-da-praia',
@@ -116,7 +116,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishName: 'Encanto da Baía',
     dishDescription: 'Camarões ao molho curry com abacaxi e legumes braseados.',
     dishImage: 'https://images.unsplash.com/photo-1543353071-087092ec393a?q=80&w=1200&auto=format&fit=crop&crop=faces&sat=-100&exp=15',
-    coords: { lat: -12.9680, lng: -38.4950 },
+    coords: { lat: -22.52587965592853, lng: -41.922497416579205 },
   },
   {
     id: 'paladar-nordestino',
@@ -126,7 +126,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishName: 'Barca do Bosque',
     dishDescription: 'Filé de linguado com camarões e molho de romã, acompanhado de legumes.',
     dishImage: 'https://images.unsplash.com/photo-1543353071-087092ec393a?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -12.9750, lng: -38.5070 },
+    coords: { lat: -22.515313580581342, lng: -41.926299816579515 },
   },
 
   {
@@ -137,7 +137,7 @@ export const RESTAURANTS: Restaurant[] = [
     dishName: 'Caymmi Sunset',
     dishDescription: 'Poke de camarões marinados com abacate e cebola roxa.',
     dishImage: 'https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?q=80&w=1200&auto=format&fit=crop',
-    coords: { lat: -12.9735, lng: -38.4995 },
+    coords: { lat: -22.525518073130037, lng: -41.95650005890625 },
   },
   {
     id: 'sirisao',
@@ -147,7 +147,17 @@ export const RESTAURANTS: Restaurant[] = [
     dishName: 'Encanto do Mar',
     dishDescription: 'Prato com polvo e frutos do mar inspirado no litoral.',
     dishImage: 'https://images.unsplash.com/photo-1543353071-087092ec393a?q=80&w=1200&auto=format&fit=crop&crop=faces&sat=-100&exp=15',
-    coords: { lat: -12.9770, lng: -38.5040 },
+    coords: { lat: -22.519744600531606, lng: -41.91951480560751 },
+  },
+  {
+    id: 'alpha-teste',
+    name: 'alpha teste',
+    description: 'Restaurante de teste para desenvolvimento.',
+    address: 'rua cachoeira de macacu, 520 casa, jardim marileia, rio das ostras-rj',
+    dishName: 'teste',
+    dishDescription: 'Prato de teste com ingredientes de teste.',
+    dishImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop&crop=faces&sat=-100&exp=15',
+    coords: { lat: -22.443088655131202, lng: -41.87394330309098 },
   }
 ];
 
